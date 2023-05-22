@@ -1,4 +1,5 @@
 ﻿using DatabaseProject.DbContexts;
+using DatabaseProject.Test.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -10,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Testcontainers.MsSql;
 
 namespace DatabaseProject.Test.Fixtures
 {
@@ -21,7 +21,11 @@ namespace DatabaseProject.Test.Fixtures
 
         public DockerWebApplicationFactoryFixture()
         {
-            _dbContainer = new MsSqlBuilder().Build();
+            _dbContainer = new MsSqlBuilder()
+                .WithDatabase("DataBaseName")
+                .WithPassword("$tr0ngP@$$w0rd")
+                .WithUsername("MyUser")
+                .Build();
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)

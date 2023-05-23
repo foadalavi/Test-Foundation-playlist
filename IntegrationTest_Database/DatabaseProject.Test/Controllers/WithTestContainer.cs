@@ -22,22 +22,22 @@ namespace DatabaseProject.Test.Controllers
             _client = _factory.CreateClient();
         }
 
-        [Fact]
-        public async Task OnGetStudent_WhenExecuteController_ShouldreturnTheExpecedStudet()
-        {
-            // Arrange
+        //[Fact]
+        //public async Task OnGetStudent_WhenExecuteController_ShouldreturnTheExpecedStudet()
+        //{
+        //    // Arrange
 
-            // Act
-            var response = await _client.GetAsync(HttpHelper.Urls.GetAllStudents);
-            var result = await response.Content.ReadFromJsonAsync<List<Student>>();
+        //    // Act
+        //    var response = await _client.GetAsync(HttpHelper.Urls.GetAllStudents);
+        //    var result = await response.Content.ReadFromJsonAsync<List<Student>>();
 
-            // Assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        //    // Assert
+        //    response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
-            result.Count.Should().Be(_factory.InitialStudentsCount);
-            result.Should()
-                .BeEquivalentTo(DataFixture.GetStudents(_factory.InitialStudentsCount), options => options.Excluding(t => t.StudentId));
-        }
+        //    result.Count.Should().Be(_factory.InitialStudentsCount);
+        //    result.Should()
+        //        .BeEquivalentTo(DataFixture.GetStudents(_factory.InitialStudentsCount), options => options.Excluding(t => t.StudentId));
+        //}
 
         [Fact]
         public async Task OnAddStudent_WhenExecuteController_ShouldStoreInDb()

@@ -74,7 +74,7 @@ namespace DatabaseProject.Test.Infrastructure
         //     A configured instance of Testcontainers.MsSql.MsSqlBuilder.
         public MsSqlBuilder WithPassword(string password)
         {
-            return Merge(DockerResourceConfiguration, new MsSqlConfiguration(null, null, password)).WithEnvironment("MSSQL_SA_PASSWORD", DefaultPassword).WithEnvironment("SQLCMDPASSWORD", DefaultPassword);
+            return Merge(DockerResourceConfiguration, new MsSqlConfiguration() { Password = password }).WithEnvironment("MSSQL_SA_PASSWORD", DefaultPassword).WithEnvironment("SQLCMDPASSWORD", DefaultPassword);
         }
 
         /// <inheritdoc />
@@ -136,7 +136,7 @@ namespace DatabaseProject.Test.Infrastructure
         //     The Docker image does not allow to configure the database.
         public MsSqlBuilder WithDatabase(string database)
         {
-            return Merge(DockerResourceConfiguration, new MsSqlConfiguration(database)).WithEnvironment("SQLCMDDBNAME", DefaultDatabase);
+            return Merge(DockerResourceConfiguration, new MsSqlConfiguration() { Database = database }).WithEnvironment("SQLCMDDBNAME", DefaultDatabase);
         }
 
         //
@@ -154,7 +154,12 @@ namespace DatabaseProject.Test.Infrastructure
         //     The Docker image does not allow to configure the username.
         public MsSqlBuilder WithUsername(string username)
         {
-            return Merge(DockerResourceConfiguration, new MsSqlConfiguration(null, username)).WithEnvironment("SQLCMDUSER", DefaultUsername);
+            return Merge(DockerResourceConfiguration, new MsSqlConfiguration() { Username = username }).WithEnvironment("SQLCMDUSER", DefaultUsername);
+        }
+
+        public MsSqlBuilder WithRestore(string backUpFilePath)
+        {
+            return Merge(DockerResourceConfiguration, new MsSqlConfiguration() { BackUpFilePath = backUpFilePath });
         }
     }
 }

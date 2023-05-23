@@ -79,17 +79,51 @@ namespace DatabaseProject.Test.Infrastructure
         public override async Task StartAsync(CancellationToken ct = default)
         {
             await base.StartAsync(ct);
-            var script = $"""
-            Create database [{_configuration.Database}];
-            CREATE LOGIN [{_configuration.Username}] WITH PASSWORD = '{_configuration.Password}';
-            ALTER SERVER ROLE [sysadmin] ADD MEMBER [{_configuration.Username}];
-            go
-            USE [{_configuration.Database}];
-            CREATE USER [{_configuration.Username}] FOR LOGIN [{_configuration.Username}];
-            ALTER USER [{_configuration.Username}] WITH DEFAULT_SCHEMA=[dbo];
-            ALTER ROLE [db_owner] ADD MEMBER [{_configuration.Username}];
-            """;
-            await ExecScriptAsync(script, ct);
+            if (!string.IsNullOrEmpty(_configuration.BackUpFilePath))
+            {
+                await Restore(_configuration.BackUpFilePath);
+            }
+            if (!string.IsNullOrEmpty(_configuration.Database) || !string.IsNullOrEmpty(_configuration.Username))
+            {
+                var script = $"""
+                Create database [{_configuration.Database}];
+                CREATE LOGIN [{_configuration.Username}] WITH PASSWORD = '{_configuration.Password}';
+                ALTER SERVER ROLE [sysadmin] ADD MEMBER [{_configuration.Username}];
+                go
+                USE [{_configuration.Database}];
+                CREATE USER [{_configuration.Username}] FOR LOGIN [{_configuration.Username}];
+                ALTER USER [{_configuration.Username}] WITH DEFAULT_SCHEMA=[dbo];
+                ALTER ROLE [db_owner] ADD MEMBER [{_configuration.Username}];
+                """;
+                await ExecScriptAsync(script, ct);
+            }
+        }
+
+        private async Task Restore(string backUpFilePath, CancellationToken ct = default)
+        {
+
+            var backupFileName = string.Join("/", string.Empty, "tmp", Path.GetFileName(_configuration.BackUpFilePath));
+            await CopyFileAsync(backupFileName, File.ReadAllBytes(backUpFilePath), 493, 0, 0, ct).ConfigureAwait(false);
+
+            var backupInfoResult = await ExecScriptAsync($"RESTORE FILELISTONLY FROM DISK = '{backupFileName}'", ct);
+            if (backupInfoResult.ExitCode == 0)
+            {
+                var command = new StringBuilder();
+                command.Append($"restore database {_configuration.Database} FROM DISK = '{backupFileName}' WITH  FILE = 1 , ");
+                var lines = backupInfoResult.Stdout.Split("\n");
+                for (int i = 2; i < lines.Length; i++)
+                {
+                    var items = lines[i].Split(" ").Where(t => t.Length > 1).ToList();
+                    if (items.Count < 5)
+                    {
+                        continue;
+                    }
+                    command.Append($"MOVE N'{items[0]}' TO N'/var/opt/mssql/data/{Path.GetFileName(items[1])}' , ");
+                }
+                command.Append("  NOUNLOAD,  STATS = 5");
+                var restoreResult = await ExecScriptAsync(command.ToString(), ct);
+            }
+
         }
     }
 }

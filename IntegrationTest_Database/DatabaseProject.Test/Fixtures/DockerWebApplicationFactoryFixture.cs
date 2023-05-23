@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DatabaseProject.Test.Fixtures
 {
@@ -22,9 +17,10 @@ namespace DatabaseProject.Test.Fixtures
         public DockerWebApplicationFactoryFixture()
         {
             _dbContainer = new MsSqlBuilder()
-                .WithDatabase("DataBaseName")
+                .WithDatabase("School")
                 .WithPassword("$tr0ngP@$$w0rd")
                 .WithUsername("MyUser")
+                .WithRestore(@"C:\Users\foada\School.bak")
                 .Build();
         }
 
@@ -46,16 +42,19 @@ namespace DatabaseProject.Test.Fixtures
         {
             await _dbContainer.StartAsync();
 
-            using (var scope = Services.CreateScope())
-            {
-                var scopedServices = scope.ServiceProvider;
-                var cntx = scopedServices.GetRequiredService<SchoolDbContext>();
+            //when you restore your database there is no need to run the folowing lines.
 
-                await cntx.Database.EnsureCreatedAsync();
+            //using (var scope = Services.CreateScope())
+            //{
+            //    var scopedServices = scope.ServiceProvider;
+            //    var cntx = scopedServices.GetRequiredService<SchoolDbContext>();
 
-                await cntx.Students.AddRangeAsync(DataFixture.GetStudents(InitialStudentsCount));
-                await cntx.SaveChangesAsync();
-            }
+
+            //    await cntx.Database.EnsureCreatedAsync();
+
+            //    await cntx.Students.AddRangeAsync(DataFixture.GetStudents(InitialStudentsCount));
+            //    await cntx.SaveChangesAsync();
+            //}
         }
 
         public async Task DisposeAsync()

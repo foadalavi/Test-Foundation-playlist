@@ -14,17 +14,9 @@ namespace DatabaseProject.Test.Infrastructure
         /// <summary>
         /// Initializes a new instance of the <see cref="MsSqlConfiguration" /> class.
         /// </summary>
-        /// <param name="database">The MsSql database.</param>
-        /// <param name="username">The MsSql username.</param>
-        /// <param name="password">The MsSql password.</param>
-        public MsSqlConfiguration(
-            string database = null,
-            string username = null,
-            string password = null)
+        public MsSqlConfiguration()
         {
-            Database = database;
-            Username = username;
-            Password = password;
+
         }
 
         /// <summary>
@@ -85,6 +77,7 @@ namespace DatabaseProject.Test.Infrastructure
             Database = BuildConfiguration.Combine(oldValue.Database, newValue.Database);
             Username = BuildConfiguration.Combine(oldValue.Username, newValue.Username);
             Password = BuildConfiguration.Combine(oldValue.Password, newValue.Password);
+            BackUpFilePath = BuildConfiguration.Combine(oldValue.BackUpFilePath, newValue.BackUpFilePath);
             InitialDatabase = BuildConfiguration.Combine(oldValue.InitialDatabase, newValue.InitialDatabase);
             InitialUsername = BuildConfiguration.Combine(oldValue.InitialUsername, newValue.InitialUsername);
             InitialPassword = BuildConfiguration.Combine(oldValue.InitialPassword, newValue.InitialPassword);
@@ -93,17 +86,21 @@ namespace DatabaseProject.Test.Infrastructure
         /// <summary>
         /// Gets the MsSql database.
         /// </summary>
-        public string Database { get; }
+        public string Database { get; internal set; }
 
         /// <summary>
         /// Gets the MsSql username.
         /// </summary>
-        public string Username { get; }
+        public string Username { get; internal set; }
 
         /// <summary>
         /// Gets the MsSql password.
         /// </summary>
-        public string Password { get; }
+        public string Password { get; internal set; }
+        /// <summary>
+        /// Gets the backup file path.
+        /// </summary>
+        public string BackUpFilePath { get; internal set; }
 
         /// <summary>
         /// Gets the MsSql initial database.
